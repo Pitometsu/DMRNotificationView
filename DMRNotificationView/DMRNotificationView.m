@@ -293,14 +293,17 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
     return CGSizeMake(_targetView.bounds.size.width, height);
 }
 
--(CGSize)expectedTitleSize
+-(CGSize)expectedSubTitleSize
 {
-    if (_title.length == 0)
+    if (_subTitle.length == 0)
         return CGSizeZero;
     
-    return [_title sizeWithFont:[self titleFont]
-              constrainedToSize:CGSizeMake(_targetView.bounds.size.width-20.0, 999.0)
-                  lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize size = [_subTitle sizeWithFont:[self subTitleFont]
+                       constrainedToSize:CGSizeMake(_targetView.bounds.size.width-20.0, 999.0)
+                            lineBreakMode:NSLineBreakByWordWrapping];
+    //iPhone5s iOS7 fix
+    size.height += 2;
+    return size;
 }
 
 -(CGSize)expectedSubTitleSize
