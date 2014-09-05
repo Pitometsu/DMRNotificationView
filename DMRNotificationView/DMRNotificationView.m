@@ -306,14 +306,14 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
     return size;
 }
 
--(CGSize)expectedSubTitleSize
+-(CGSize)expectedTitleSize
 {
-    if (_subTitle.length == 0)
+    if (_title.length == 0)
         return CGSizeZero;
     
-    return [_subTitle sizeWithFont:[self subTitleFont]
-                 constrainedToSize:CGSizeMake(_targetView.bounds.size.width-20.0, 999.0)
-                     lineBreakMode:NSLineBreakByWordWrapping];
+    return [_title sizeWithFont:[self titleFont]
+              constrainedToSize:CGSizeMake(_targetView.bounds.size.width-20.0, 999.0)
+                  lineBreakMode:NSLineBreakByWordWrapping];
 }
 
 -(UIFont *)titleFont
