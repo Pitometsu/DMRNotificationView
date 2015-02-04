@@ -28,7 +28,7 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
 #pragma mark -
 #pragma mark Default Initializer
 
--(id)initWithTitle:(NSString *)title subTitle:(NSString *)subTitle targetView:(UIView *)view
+-(id)initWithTitle:(NSString *)title subTitle:(NSString *)subTitle targetView:(UIView *)view image:(UIImage *)image
 {
     self = [super initWithFrame:CGRectZero];
     if (self)
@@ -43,6 +43,7 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
         [self setIsTransparent:YES];
         [self setTintColor:[UIColor colorWithRed:0.133 green:0.267 blue:0.533 alpha:1.000]];
         [self setHideTimeInterval:kNotificationViewDefaultHideTimeInterval];
+        self.image = image;
     }
     return self;
 }
@@ -54,12 +55,19 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
 
 +(void)showInView:(UIView *)view title:(NSString *)title subTitle:(NSString *)subTitle
 {
-    [self showInView:view title:title subTitle:subTitle tintColor:nil];
+    [self showInView:view title:title subTitle:subTitle tintColor:nil image:nil];
 }
 
-+(void)showInView:(UIView *)view title:(NSString *)title subTitle:(NSString *)subTitle tintColor:(UIColor *)tintColor
++(void)showInView:(UIView *)view
+            title:(NSString *)title
+         subTitle:(NSString *)subTitle
+        tintColor:(UIColor *)tintColor
+            image:(UIImage *)image
 {
-    DMRNotificationView *notificationView = [[self alloc] initWithTitle:title subTitle:subTitle targetView:view];
+    DMRNotificationView *notificationView = [[self alloc] initWithTitle:title
+                                                               subTitle:subTitle
+                                                             targetView:view
+                                                                  image:image];
     
     if (tintColor)
         [notificationView setTintColor:tintColor];
@@ -67,14 +75,22 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
     [notificationView showAnimated:YES];
 }
 
-+(void)showWarningInView:(UIView *)view title:(NSString *)title subTitle:(NSString *)subTitle
++(void)showWarningInView:(UIView *)view title:(NSString *)title subTitle:(NSString *)subTitle image:(UIImage *)image
 {
-    [self showInView:view title:title subTitle:subTitle tintColor:[self tintColorForType:DMRNotificationViewTypeWarning]];
+    [self showInView:view
+               title:title
+            subTitle:subTitle
+           tintColor:[self tintColorForType:DMRNotificationViewTypeWarning]
+               image:image];
 }
 
-+(void)showSuccessInView:(UIView *)view title:(NSString *)title subTitle:(NSString *)subTitle
++(void)showSuccessInView:(UIView *)view title:(NSString *)title subTitle:(NSString *)subTitle image:(UIImage *)image
 {
-    [self showInView:view title:title subTitle:subTitle tintColor:[self tintColorForType:DMRNotificationViewTypeSuccess]];
+    [self showInView:view
+               title:title
+            subTitle:subTitle
+           tintColor:[self tintColorForType:DMRNotificationViewTypeSuccess]
+               image:image];
 }
 
 
@@ -114,6 +130,15 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
                  alignment:NSTextAlignmentCenter];
         
         labelVerticalPosition += titleSize.height+kNotificationViewLabelVerticalPadding;
+    }
+    
+    // Image
+    if (self.image)
+    {
+        CGFloat x = (self.targetView.bounds.size.width - 20.f - [self.title sizeWithFont:self.titleFont].width) / 2.f
+        - self.image.size.width - 10.f;
+        CGFloat y = kNotificationViewVerticalInset;
+        [self.image drawAtPoint:CGPointMake(x, y)];
     }
     
     // Subtitle

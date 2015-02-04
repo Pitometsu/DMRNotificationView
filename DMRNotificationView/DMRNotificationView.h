@@ -40,6 +40,9 @@ typedef NS_OPTIONS(NSUInteger, DMRNotificationViewType)
 /* Title. Cannot be nil or 0 length. */
 @property (strong, nonatomic) NSString *title;
 
+/* Optional image placed before title */
+@property (strong, nonatomic) UIImage *image;
+
 /* Optional subtitle. */
 @property (strong, nonatomic) NSString *subTitle;
 
@@ -57,7 +60,8 @@ typedef NS_OPTIONS(NSUInteger, DMRNotificationViewType)
  */
 -(id)initWithTitle:(NSString *)title
           subTitle:(NSString *)subTitle
-        targetView:(UIView *)view;
+        targetView:(UIView *)view
+             image:(UIImage *)image;
 
 /**
  Convenience methods for quick use. Using one of these method does not allow you to customize the fonts, 
@@ -70,18 +74,21 @@ typedef NS_OPTIONS(NSUInteger, DMRNotificationViewType)
 +(void)showInView:(UIView *)view
             title:(NSString *)title
          subTitle:(NSString *)subTitle
-        tintColor:(UIColor *)tintColor;
+        tintColor:(UIColor *)tintColor
+            image:(UIImage *)image;
 
 +(void)showWarningInView:(UIView *)view
                  title:(NSString *)title
-              subTitle:(NSString *)subTitle;
+              subTitle:(NSString *)subTitle
+                   image:(UIImage *)image;
 
 +(void)showSuccessInView:(UIView *)view
                  title:(NSString *)title
-              subTitle:(NSString *)subTitle;
+              subTitle:(NSString *)subTitle
+                   image:(UIImage *)image;
 
 /**
- Shows the notification view from in target view. Slides the notification view from down if animated. 
+ Shows the notification view from in target view. Slides the notification view from down if animated.
  Position is always {0,0}.
  */
 -(void)showAnimated:(BOOL)animated;

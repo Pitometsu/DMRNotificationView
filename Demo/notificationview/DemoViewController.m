@@ -78,7 +78,8 @@
     {
         [DMRNotificationView showWarningInView:self.view
                                        title:@"Warning!"
-                                    subTitle:@"Simple method to quickly show a warning"];
+                                    subTitle:@"Simple method to quickly show a warning"
+                                         image:nil];
     }
     
     if (button.tag == 2)
@@ -86,7 +87,10 @@
         NSString *title = @"Different font";
         NSString *subTitle = @"To customise fonts (and more) you need to use the default init method. \n\nTake a look at the beginning in the implementation file where you can also adjust the default tint color, shadow offset, text inset and more.\n\nBy the way, you have to tap this view to dismiss.";
         
-        DMRNotificationView *notificationView = [[DMRNotificationView alloc] initWithTitle:title subTitle:subTitle targetView:self.view];
+        DMRNotificationView *notificationView = [[DMRNotificationView alloc] initWithTitle:title
+                                                                                  subTitle:subTitle
+                                                                                targetView:self.view
+                                                                                     image:nil];
         [notificationView setTitleFont:[UIFont fontWithName:@"MarkerFelt-Thin" size:20.0]];
         [notificationView setSubTitleFont:[UIFont fontWithName:@"MarkerFelt-Thin" size:13.0]];
         [notificationView setHideTimeInterval:0.0];     // Prevents the notification view to automatically dismiss
@@ -98,7 +102,11 @@
     
     if (button.tag == 3)
     {
-        DMRNotificationView *notificationView = [[DMRNotificationView alloc] initWithTitle:@"Not transparent" subTitle:@"You can disable transparency by setting 'trasparent' to NO" targetView:self.view];
+        DMRNotificationView *notificationView = [[DMRNotificationView alloc] initWithTitle:@"Not transparent"
+                                                                                  subTitle:@"You can disable "
+                                                 "transparency by setting 'trasparent' to NO"
+                                                                                targetView:self.view
+                                                                                     image:nil];
         [notificationView setTintColor:[UIColor scrollViewTexturedBackgroundColor]];        
         [notificationView setIsTransparent:NO];         // Disable tint color transparency
         [notificationView showAnimated:YES];
@@ -109,7 +117,8 @@
         [DMRNotificationView showInView:self.view
                                   title:@"White panel"
                                subTitle:@"Text will be dark if the tint color is bright"
-                              tintColor:[UIColor whiteColor]];
+                              tintColor:[UIColor whiteColor]
+                                  image:nil];
     }
 }
 
