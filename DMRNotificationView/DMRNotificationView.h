@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
+
 typedef void (^DMRNotificationViewDidTapHandler) ();
+
 
 /** Predefined colors */
 typedef NS_OPTIONS(NSUInteger, DMRNotificationViewType)
@@ -17,6 +19,7 @@ typedef NS_OPTIONS(NSUInteger, DMRNotificationViewType)
         DMRNotificationViewTypeWarning     = 1,        // Red panel
         DMRNotificationViewTypeSuccess     = 2         // Green panel
 };
+
 
 @interface DMRNotificationView : UIView
 
@@ -34,17 +37,26 @@ typedef NS_OPTIONS(NSUInteger, DMRNotificationViewType)
 /* Default is YES (0.85 opacity) */
 @property (nonatomic, assign, setter = setIsTransparent:) BOOL transparent UI_APPEARANCE_SELECTOR;
 
+/* Transparency value */
+@property (nonatomic, assign) CGFloat transparency;
+
 /* Target view in which the notification will appear. Cannot be nil. */
 @property (nonatomic, weak) UIView *targetView;
 
 /* Title. Cannot be nil or 0 length. */
-@property (strong, nonatomic) NSString *title;
+@property (nonatomic, copy) NSString *title;
+
+/* Attributed string for title */
+@property (nonatomic, copy) NSAttributedString *attributedTitle;
 
 /* Optional image placed before title */
-@property (strong, nonatomic) UIImage *image;
+@property (nonatomic, strong) UIImage *image;
 
 /* Optional subtitle. */
-@property (strong, nonatomic) NSString *subTitle;
+@property (nonatomic, copy) NSString *subTitle;
+
+/* Attributed string for subtitle */
+@property (nonatomic, copy) NSAttributedString *attributedSubtitle;
 
 /* The time interval which will cause the notification view to automatically dismiss it self. Set to 0.0 
  to disable auto dismiss. Default is 2.5. */
@@ -86,6 +98,9 @@ typedef NS_OPTIONS(NSUInteger, DMRNotificationViewType)
                  title:(NSString *)title
               subTitle:(NSString *)subTitle
                    image:(UIImage *)image;
+
+/** Show in target view */
+-(void)showInView:(UIView *)view;
 
 /**
  Shows the notification view from in target view. Slides the notification view from down if animated.

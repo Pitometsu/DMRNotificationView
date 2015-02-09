@@ -37,6 +37,7 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
         [self setContentMode:UIViewContentModeRedraw];
         [self setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
         
+        self.transparency = kNotificationViewTintColorTransparency;
         [self setTitle:title];
         [self setSubTitle:subTitle];
         [self setTargetView:view];
@@ -106,11 +107,15 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
  
     // Tint color
     CGContextSetFillColorWithColor(ref, _tintColor.CGColor);
-    CGContextSetShadowWithColor(ref, CGSizeMake(0.0, 1.0), kNotificationViewShadowOffset, [UIColor colorWithWhite:0.0 alpha:1.0].CGColor);
-    CGContextFillRect(ref, CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height-kNotificationViewShadowOffset));
-    
+    CGContextSetShadowWithColor(ref, CGSizeMake(0.0, 1.0),
+                                kNotificationViewShadowOffset,
+                                [UIColor colorWithWhite:0.0 alpha:1.0].CGColor);
+    CGContextFillRect(ref, CGRectMake(rect.origin.x,
+                                      rect.origin.y,
+                                      rect.size.width,
+                                      rect.size.height-kNotificationViewShadowOffset));
     CGContextRestoreGState(ref);
-    
+
     UIColor *textColor = [self textColor];                  // Depends on fillColor
     BOOL textIncludesShadow = [self textIncludesShadow];    // Depends on fillColor
     CGFloat labelVerticalPosition = kNotificationViewVerticalInset;    
@@ -118,24 +123,42 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
     // Title
     if (_title.length > 0)
     {
-        [textColor set];
         CGSize titleSize = [self expectedTitleSize];
-        
-        if (textIncludesShadow)
-            CGContextSetShadowWithColor(ref, CGSizeMake(0.0, -1.0), 0.0, [UIColor colorWithWhite:0.0 alpha:0.3].CGColor);
-        
-        [_title drawInRect:CGRectMake(10.0, labelVerticalPosition, _targetView.bounds.size.width-20.0, titleSize.height)
-                  withFont:[self titleFont]
-             lineBreakMode:NSLineBreakByWordWrapping
-                 alignment:NSTextAlignmentCenter];
-        
-        labelVerticalPosition += titleSize.height+kNotificationViewLabelVerticalPadding;
+        CGRect rect = CGRectMake(10.0,
+                                 labelVerticalPosition,
+                                 _targetView.bounds.size.width-20.0,
+                                 titleSize.height);
+        if (self.attributedTitle) {
+            [self.attributedTitle drawInRect:rect];
+        } else {
+            [textColor set];
+
+            if (textIncludesShadow)
+                CGContextSetShadowWithColor(ref,
+                                            CGSizeMake(0.0, -1.0),
+                                            0.f,
+                                            [UIColor colorWithWhite:0.0 alpha:0.3].CGColor);
+
+            NSMutableParagraphStyle *textMutableStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
+            textMutableStyle.lineBreakMode = NSLineBreakByWordWrapping;
+            textMutableStyle.alignment     = NSTextAlignmentCenter;
+            NSMutableParagraphStyle *textStyle = [textMutableStyle copy];
+            
+            [self.title drawInRect:rect
+                    withAttributes:@{NSFontAttributeName            : [self titleFont],
+                                     NSForegroundColorAttributeName : [self textColor],
+                                     NSParagraphStyleAttributeName  : textStyle}];
+
+            labelVerticalPosition += titleSize.height+kNotificationViewLabelVerticalPadding;
+        }
     }
     
     // Image
     if (self.image)
     {
-        CGFloat x = (self.targetView.bounds.size.width - 20.f - [self.title sizeWithFont:self.titleFont].width) / 2.f
+        CGFloat x = (self.targetView.bounds.size.width - 20.f
+                     - [self.title sizeWithAttributes:
+                        @{NSFontAttributeName : self.titleFont}].width) / 2.f
         - self.image.size.width - 10.f;
         CGFloat y = kNotificationViewVerticalInset;
         [self.image drawAtPoint:CGPointMake(x, y)];
@@ -143,26 +166,38 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
     
     // Subtitle
     if (_subTitle.length > 0)
-    {   
-        [textColor set];
+    {
         CGSize subTitleSize = [self expectedSubTitleSize];
-        
-        if (textIncludesShadow)
-            CGContextSetShadowWithColor(ref, CGSizeMake(0.0, -1.0), 0.0, [UIColor colorWithWhite:0.0 alpha:0.3].CGColor);
-        
-        [_subTitle drawInRect:CGRectMake((_targetView.bounds.size.width-subTitleSize.width)/2, labelVerticalPosition, _targetView.bounds.size.width-20.0, subTitleSize.height)
-                  withFont:[self subTitleFont]
-             lineBreakMode:NSLineBreakByWordWrapping];
+        CGRect rect = CGRectMake((_targetView.bounds.size.width-subTitleSize.width)/2,
+                                 labelVerticalPosition,
+                                 _targetView.bounds.size.width - 20.f,
+                                 subTitleSize.height);
+        if (self.attributedSubtitle) {
+            [self.attributedSubtitle drawInRect:rect];
+        } else {
+            [textColor set];
+
+            if (textIncludesShadow) {
+                CGContextSetShadowWithColor(ref,
+                                            CGSizeMake(0.0, -1.0),
+                                            0.0,
+                                            [UIColor colorWithWhite:0.0 alpha:0.3].CGColor);
+            }
+            NSMutableParagraphStyle *textMutableStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
+            textMutableStyle.lineBreakMode = NSLineBreakByWordWrapping;
+            textMutableStyle.alignment     = NSTextAlignmentLeft;
+            NSMutableParagraphStyle *textStyle = [textMutableStyle copy];
+            
+            [self.subTitle drawInRect:rect
+                       withAttributes:@{NSFontAttributeName            : [self subTitleFont],
+                                        NSForegroundColorAttributeName : [self textColor],
+                                        NSParagraphStyleAttributeName  : textStyle}];
+        }
     }
     
     // Lines
     CGContextSetAllowsAntialiasing(ref, false);
     CGContextSetLineWidth(ref, 1.0);
-
-//    CGContextMoveToPoint(ref, CGRectGetMinX(rect), CGRectGetMaxY(rect)-(kNotificationViewShadowOffset+0.5));
-//    CGContextAddLineToPoint(ref, CGRectGetMaxX(rect), CGRectGetMaxY(rect)-(kNotificationViewShadowOffset+0.5));
-//    CGContextSetStrokeColorWithColor(ref, [UIColor colorWithWhite:1.0 alpha:0.5].CGColor);
-//    CGContextStrokePath(ref);
 }
 
 
@@ -170,6 +205,13 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
 
 #pragma mark -
 #pragma mark Public
+
+-(void)showInView:(UIView *)view
+{
+    [self setTargetView:view];
+    [self showAnimated:YES];
+}
+
 
 -(void)showAnimated:(BOOL)animated
 {
@@ -221,6 +263,24 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
 
 #pragma mark -
 #pragma mark Setters
+
+-(void)setAttributedTitle:(NSAttributedString *)attributedTitle
+{
+    if (self.attributedTitle == attributedTitle) {
+        return;
+    }
+    self->_attributedTitle = attributedTitle;
+    self.title = self.attributedTitle.string;
+}
+
+-(void)setAttributedSubtitle:(NSAttributedString *)attributedSubtitle
+{
+    if (self.attributedSubtitle == attributedSubtitle) {
+        return;
+    }
+    self->_attributedSubtitle = attributedSubtitle;
+    self.subTitle = self.attributedSubtitle.string;
+}
 
 -(void)setTintColor:(UIColor *)tintColor
 {
@@ -281,7 +341,7 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
 
 -(UIColor *)transparentTintColorFromColor:(UIColor *)color
 {
-    CGFloat opacity = (_transparent) ? kNotificationViewTintColorTransparency : 1.0;
+    CGFloat opacity = (_transparent) ? self.transparency : 1.0;
     CGColorRef transparentColor = CGColorCreateCopyWithAlpha(color.CGColor, opacity);
     
     UIColor *newColor = [UIColor colorWithCGColor:transparentColor];
@@ -320,12 +380,22 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
 
 -(CGSize)expectedSubTitleSize
 {
-    if (_subTitle.length == 0)
+    if (_subTitle.length == 0) {
         return CGSizeZero;
+    }
+    NSMutableParagraphStyle *textMutableStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
+    textMutableStyle.lineBreakMode = NSLineBreakByWordWrapping;
+    textMutableStyle.alignment     = NSTextAlignmentLeft;
+    NSMutableParagraphStyle *textStyle = [textMutableStyle copy];
     
-    CGSize size = [_subTitle sizeWithFont:[self subTitleFont]
-                       constrainedToSize:CGSizeMake(_targetView.bounds.size.width-20.0, 999.0)
-                            lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize size =
+    [self.subTitle boundingRectWithSize:CGSizeMake(_targetView.bounds.size.width - 20.f, 999.f)
+                                options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading
+                             attributes:@{NSFontAttributeName            : [self subTitleFont],
+                                          NSForegroundColorAttributeName : [self textColor],
+                                          NSParagraphStyleAttributeName  : textStyle}
+                                context:nil].size;
+
     //iPhone5s iOS7 fix
     size.height += 2;
     return size;
@@ -333,12 +403,21 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
 
 -(CGSize)expectedTitleSize
 {
-    if (_title.length == 0)
+    if (_title.length == 0) {
         return CGSizeZero;
-    
-    return [_title sizeWithFont:[self titleFont]
-              constrainedToSize:CGSizeMake(_targetView.bounds.size.width-20.0, 999.0)
-                  lineBreakMode:NSLineBreakByWordWrapping];
+    }
+    NSMutableParagraphStyle *textMutableStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
+    textMutableStyle.lineBreakMode = NSLineBreakByWordWrapping;
+    textMutableStyle.alignment     = NSTextAlignmentCenter;
+    NSMutableParagraphStyle *textStyle = [textMutableStyle copy];
+
+    return
+    [self.title boundingRectWithSize:CGSizeMake(_targetView.bounds.size.width - 20.f, 999.f)
+                             options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading
+                          attributes:@{NSFontAttributeName            : [self titleFont],
+                                       NSForegroundColorAttributeName : [self textColor],
+                                       NSParagraphStyleAttributeName  : textStyle}
+                             context:nil].size;
 }
 
 -(UIFont *)titleFont
@@ -390,4 +469,5 @@ static CGFloat kNotificationViewShadowOffset = 5.0;                     // Shado
         [self dismissAnimated:YES];
     }
 }
+
 @end
